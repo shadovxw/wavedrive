@@ -1,0 +1,134 @@
+/* Navbar container styling */
+.navbar {
+    position: fixed;
+    top: 50px;
+    left: 50% - 10px;
+    width: 400px;
+    height: 70px;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0px;
+    z-index: 1000;
+    
+    border-bottom: 1px solid rgb(56, 95, 226);
+  }
+  
+  /* Styling for both text and icon elements */
+  .text{
+    color: #FFF;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .icon {
+    color: #000000;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: large;
+    font-weight: bold;
+    z-index: 1001;
+  }
+  
+  /* Unordered list that holds the menu items */
+  ul {
+    display: flex;
+    width: 350px;
+    padding: 0;
+  }
+  
+  /* List items: each menu option */
+  li {
+    position: relative;
+    list-style: none;
+    width: 100px;
+    height: 50px;
+  }
+  
+  /* Anchor tag styling inside list items */
+  li a {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  /* Icon styling inside the anchor */
+  a .icon {
+    position: relative;
+    display: block;
+    line-height: 65px;
+    font-size: 1.5rem;
+    text-align: center;
+    transition: 1s;
+  }
+  
+  /* When a list item is active, move its icon upward */
+  li.active a .icon {
+    color: #fff;
+    transform: translateY(-35px);
+  }
+  
+  /* Text styling for the label under the icon */
+  a .text {
+    position: absolute;
+    font-weight: bold;
+    font-size: 1.5rem;
+    transition: 1.5s;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  /* When active, show the text and adjust its position */
+  li.active a .text {
+    opacity: 1;
+    transform: translateY(10px);
+  }
+  
+  /* Indicator element styling (the moving circle) */
+  .indicator {
+    position: absolute;
+    top: -50%;
+    left: 35px;
+    width: 75px;
+    height: 75px;
+    background: rgb(0, 0, 0);
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 6px solid rgb(27, 1, 139);
+    transition: 1s;
+    
+  }
+  
+  /* Pseudo-elements for additional decorative effects on the indicator */
+  .indicator::before,
+  .indicator::after {
+    position: absolute;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    background: transparent;
+  }
+  
+  .indicator::before {
+    left: -500px;
+    border-top-right-radius: 20px;
+    box-shadow: 10px 10px 0 0 #222322;
+    
+  }
+
+  .indicator::after{
+    color: #fff;
+  }
+  
+  /* Position the indicator based on which list item is active */
+  li.active ~ .indicator {
+    --x: 0;
+    transform: translateX(var(--x));
+  }
+  
