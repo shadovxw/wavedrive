@@ -1,0 +1,29 @@
+body{
+    background-color: #fff;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.title p  {
+    height: auto; 
+    width: fit-content; 
+    font-family:'Courier New', Courier, monospace;
+    white-space: nowrap; 
+    overflow: hidden;
+    animation: typing 3s steps(20) infinite; /* forwards keeps it at 100% after animation */
+    filter: drop-shadow(10px 10px 10px rgba(0, 0, 0, 0.7));
+    font-size: 80px;
+    font-weight: bold;
+    color: rgb(3, 17, 94);
+    
+  }
+  
+  @keyframes typing {
+    from {
+      width: 0;
+    }
+    to {
+      width: 40ch;
+    }
+  }

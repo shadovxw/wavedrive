@@ -2,7 +2,7 @@
 .navbar {
     position: fixed;
     top: 50px;
-    left: 50% - 10px;
+    left: 40% ;
     width: 400px;
     height: 70px;
     background: transparent;
@@ -12,30 +12,24 @@
     border-radius: 0px;
     z-index: 1000;
     
-    border-bottom: 1px solid rgb(56, 95, 226);
   }
   
   /* Styling for both text and icon elements */
   .text{
-    color: #FFF;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 20px;
-    font-weight: bold;
+    color: #000000;
   }
 
   .icon {
     color: #000000;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: large;
-    font-weight: bold;
     z-index: 1001;
   }
   
   /* Unordered list that holds the menu items */
   ul {
     display: flex;
-    width: 350px;
+    width: 800px;
     padding: 0;
+    justify-content: space-evenly;
   }
   
   /* List items: each menu option */
@@ -56,6 +50,7 @@
     width: 100%;
     text-align: center;
     font-weight: 500;
+    gap: 100px;
   }
   
   /* Icon styling inside the anchor */
@@ -78,7 +73,7 @@
   a .text {
     position: absolute;
     font-weight: bold;
-    font-size: 1.5rem;
+    font-size: 2rem;
     transition: 1.5s;
     opacity: 0;
     transform: translateY(20px);
@@ -94,7 +89,7 @@
   .indicator {
     position: absolute;
     top: -50%;
-    left: 35px;
+    left: -100px;
     width: 75px;
     height: 75px;
     background: rgb(0, 0, 0);
@@ -132,3 +127,11 @@
     transform: translateX(var(--x));
   }
   
+  .login-signup button{
+    position: absolute;
+    background-color: #00366b;
+    color: #FFF;
+    top: 60px;
+    right: 100px;
+    font-size: 20px;
+  }

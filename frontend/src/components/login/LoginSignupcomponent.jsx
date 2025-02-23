@@ -11,6 +11,7 @@ function LoginSignupcomponent() {
   const handleSubmit = () => {
     
     console.log("Form submitted");
+    window.location.href = "/";
   };
 
   return (
@@ -44,7 +45,7 @@ function LoginSignupcomponent() {
                     <FontAwesomeIcon icon={passwordVisible ? faEyeSlash : faEye} />
                   </span>
                 </div>
-                <a onClick={(e) => { e.preventDefault(); handleSubmit();}}>
+                <a onClick={(e) => {handleSubmit();}}>
                   <span></span>
                   <span></span>
                   <span></span>

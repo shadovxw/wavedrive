@@ -1,0 +1,32 @@
+
+.kit{
+    display: flex;
+    flex-direction: column;
+}
+.kit p1{
+    font-size: 150px;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.kit p2, p3{
+    font-size: 80px;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+
+    
+
+.demo1 button{
+    background: transparent;
+    color: blue;
+    font-weight: bold;
+    border-radius: 0px;
+    padding: 0;
+    font-size: 30px;
+}
+
+.demo1 button:hover{
+    border: none;
+    border-bottom: 1px solid black;
+}
+
