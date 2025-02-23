@@ -7,13 +7,12 @@ import './Navbar.css';
 function Navbar() {
   const [activeIndex, setActiveIndex] = useState(0);
 
-
   const distances = [-6, 172, 352, 532]; 
 
   const menuItems = [
     { path: '/', icon: faHome, text: 'Home' },
-    { path: '/a', icon: faTerminal, text: 'Console' },
-    { path: '/b', icon: faCode, text: 'Codebase' },
+    { path: '/', icon: faTerminal, text: 'Console' },
+    { path: '/compiler', icon: faCode, text: 'Codebase' },
     { path: '/kit', icon: faToolbox, text: 'Kit' },
   ];
 
