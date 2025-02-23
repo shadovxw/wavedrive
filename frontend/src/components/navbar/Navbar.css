@@ -11,6 +11,8 @@
     align-items: center;
     border-radius: 0px;
     z-index: 1000;
+    padding-bottom: 35px;
+    border-bottom: 2px solid black;
     
   }
   
@@ -88,7 +90,7 @@
   /* Indicator element styling (the moving circle) */
   .indicator {
     position: absolute;
-    top: -50%;
+    top: -32%;
     left: -100px;
     width: 75px;
     height: 75px;

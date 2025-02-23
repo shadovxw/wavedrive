@@ -8,6 +8,26 @@ function LoginSignupcomponent() {
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
 
+  const passwordRules = [
+    { label: "At least 8 characters", regex: /.{8,}/ },
+    { label: "At least one uppercase letter", regex: /[A-Z]/ },
+    { label: "At least one lowercase letter", regex: /[a-z]/ },
+    { label: "At least one number", regex: /[0-9]/ },
+    { label: "At least one special character", regex: /[^A-Za-z0-9]/ },
+  ];
+
+  // Function to check if password matches the regex rules
+  const checkPassword = (rule, password) => rule.regex.test(password);
+
+  // Count how many password rules are met
+  const matchedRulesCount = passwordRules.filter(rule => checkPassword(rule, password)).length;
+
+  // Determine password strength based on number of rules matched
+  let passwordStrength = "Weak 🔴";
+  if (matchedRulesCount >= 3) passwordStrength = "Medium 🟠";
+  if (matchedRulesCount === 5) passwordStrength = "Strong 🟢";
+
+
   const handleSubmit = () => {
     
     console.log("Form submitted");
@@ -90,6 +110,23 @@ function LoginSignupcomponent() {
                     <FontAwesomeIcon icon={passwordVisible ? faEyeSlash : faEye} />
                   </span>
                 </div>
+
+                {/* Password Strength Indicator */}
+                <div className="password-strength">
+                  Password Strength: <strong>{passwordStrength}</strong>
+                </div>
+
+                {/* Password Rule Checklist */}
+                <div className="pass-check">
+                  {passwordRules.map((rule, index) => (
+                    <div key={index} className="password-rule">
+                      <span style={{ color: checkPassword(rule, password) ? "#00ff00" : "#ff0000" }}>
+                        {checkPassword(rule, password) ? "✅" : "❌"} {rule.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                
                 <a onClick={(e) => { e.preventDefault(); handleSubmit();}}>
                   <span></span>
                   <span></span>

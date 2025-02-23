@@ -291,3 +291,16 @@ body {
   color: rgb(200, 255, 0);
 }
 
+.password-strength {
+  font-size: 14px;
+  margin-top: 5px;
+  color: white;
+}
+
+.pass-check{
+  
+  font-size: 16px;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  margin-bottom: 0px;
+  margin-top: 15px;
+}
