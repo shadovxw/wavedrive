@@ -68,7 +68,7 @@
   /* When a list item is active, move its icon upward */
   li.active a .icon {
     color: #fff;
-    transform: translateY(-35px);
+    opacity: 0;
   }
   
   /* Text styling for the label under the icon */
@@ -84,8 +84,20 @@
   /* When active, show the text and adjust its position */
   li.active a .text {
     opacity: 1;
+    animation: fadeIn 2s ease forwards;
     transform: translateY(10px);
   }
+
+  @keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
   
   /* Indicator element styling (the moving circle) */
   .indicator {
@@ -130,10 +142,41 @@
   }
   
   .login-signup button{
+    padding: 0.8em 1.8em;
+    
     position: absolute;
-    background-color: #00366b;
-    color: #FFF;
+    overflow: hidden;
+    background-color: transparent;
+    color: #00366b;
     top: 60px;
     right: 100px;
-    font-size: 20px;
+    font-size: 25px;
+    transition: .3s;
+    z-index: 1;
+    cursor: pointer;
+
+    
+  }
+
+  .login-signup button::before {
+    content: '';
+    width: 0;
+    height: 300%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(145deg);
+    background: #00366b;
+    transition: 1s ease;
+    display: block;
+    z-index: -1;
+}
+
+  .login-signup button:hover::before{
+    width: 105%;
+  }
+  
+  .login-signup button:hover{
+    border: 2px solid #14005a;
+    color: #ffffff;
   }

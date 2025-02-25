@@ -6,7 +6,7 @@ function LandingComponent() {
     return (
         <>
             <div className='title'>
-                <p>WELCOME TO WAVEDRIVE WEBSITE</p>
+                <p>Wave Drive Experience the Future.</p>
             </div>
 
             <div className='cards-container'>
@@ -25,7 +25,7 @@ function LandingComponent() {
                             </div>
                             <div className="card-back">
                                 <p>Discover the future of driving. Try now!</p>
-                                <Link to="/control" className="btn">Go to Console</Link>
+                                <Link to="/" className="btn">Go to Console</Link>
                             </div>
                         </div>
                     </div>
@@ -42,7 +42,7 @@ function LandingComponent() {
                             </div>
                             <div className="card-back">
                                 <p>Edit & enhance your gestures today!</p>
-                                <Link to="/editor" className="btn">Go to Editor</Link>
+                                <Link to="/compiler" className="btn">Go to Editor</Link>
                             </div>
                         </div>
                     </div>
@@ -59,7 +59,7 @@ function LandingComponent() {
                             </div>
                             <div className="card-back">
                                 <p>Order your kit now and start experimenting!</p>
-                                <Link to="/buy-kits" className="btn">Buy Kits Now</Link>
+                                <Link to="/kit" className="btn">Buy Kits Now</Link>
                             </div>
                         </div>
                     </div>

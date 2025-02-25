@@ -304,3 +304,25 @@ body {
   margin-bottom: 0px;
   margin-top: 15px;
 }
+
+/* Success Message Box */
+.success-box {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #28a745; /* Green background */
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  animation: fadeInOut 2s ease-in-out;
+}
+
+/* Fade In and Out Effect */
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(10px); }
+  20% { opacity: 1; transform: translateY(0px); }
+  80% { opacity: 1; transform: translateY(0px); }
+  100% { opacity: 0; transform: translateY(10px); }
+}

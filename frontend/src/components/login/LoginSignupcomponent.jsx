@@ -7,6 +7,7 @@ function LoginSignupcomponent() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const passwordRules = [
     { label: "At least 8 characters", regex: /.{8,}/ },
@@ -30,8 +31,12 @@ function LoginSignupcomponent() {
 
   const handleSubmit = () => {
     
-    console.log("Form submitted");
-    window.location.href = "/";
+    setShowSuccess(true); // ✅ Show success message
+    
+    setTimeout(() => {
+      setShowSuccess(false); // Hide after 2 seconds
+      window.location.href = "/"; // Redirect to homepage
+    }, 2000);
   };
 
   return (
@@ -65,7 +70,7 @@ function LoginSignupcomponent() {
                     <FontAwesomeIcon icon={passwordVisible ? faEyeSlash : faEye} />
                   </span>
                 </div>
-                <a onClick={(e) => {handleSubmit();}}>
+                <a onClick={(e) => {e.preventDefault();handleSubmit(e);}}>
                   <span></span>
                   <span></span>
                   <span></span>
@@ -127,7 +132,7 @@ function LoginSignupcomponent() {
                   ))}
                 </div>
                 
-                <a onClick={(e) => { e.preventDefault(); handleSubmit();}}>
+                <a onClick={(e) => { e.preventDefault(); handleSubmit(e);}}>
                   <span></span>
                   <span></span>
                   <span></span>
@@ -142,6 +147,12 @@ function LoginSignupcomponent() {
           </div>
         </div>
       </div>
+
+      {showSuccess && (
+        <div className="success-box">
+          ✅ Logged in Successfully! Redirecting...
+        </div>
+      )}
     </>
   );
 }

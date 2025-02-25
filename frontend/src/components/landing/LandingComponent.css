@@ -29,7 +29,7 @@ body {
       width: 0ch;
   }
   to {
-      width: 28ch;
+      width: 35ch;
   }
 }
 
@@ -44,15 +44,15 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 100px;
+  gap: 150px;
   max-width: 1500px;
   padding: 20px;
   position: relative;
 }
 
 .card {
-  width: 300px;
-  height: 200px;
+  width: 400px;
+  height: 250px;
   perspective: 1000px; /* Needed for 3D flipping */
 }
 
@@ -65,7 +65,7 @@ body {
 }
 
 .card:hover .card-inner {
-  transform: rotateY(180deg) scale(1.65);
+  transform: rotateY(180deg) scale(1.25);
 }
 
 /* Front & Back Styles */
@@ -109,3 +109,18 @@ body {
 .btn:hover {
   background-color: lightgray;
 }
+
+.cards:hover .card:not(:hover) {
+  filter: blur(2px);
+  
+}
+
+/* .card:nth-child(1) {
+  ;
+}
+
+.card:nth-child(3) {
+  ;
+} */
+
+
