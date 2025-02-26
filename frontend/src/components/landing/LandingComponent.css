@@ -107,7 +107,7 @@ body {
 }
 
 .btn:hover {
-  background-color: lightgray;
+  background-color: rgb(224, 224, 224);
 }
 
 .cards:hover .card:not(:hover) {
