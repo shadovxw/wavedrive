@@ -5,9 +5,15 @@ import './LoginSignupcomponent.css';
 
 function LoginSignupcomponent() {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Hardcoded credentials for login validation
+  const hardcodedUsername = 'admin';
+  const hardcodedPassword = 'pass';
 
   const passwordRules = [
     { label: "At least 8 characters", regex: /.{8,}/ },
@@ -17,40 +23,66 @@ function LoginSignupcomponent() {
     { label: "At least one special character", regex: /[^A-Za-z0-9]/ },
   ];
 
-  // Function to check if password matches the regex rules
   const checkPassword = (rule, password) => rule.regex.test(password);
-
-  // Count how many password rules are met
   const matchedRulesCount = passwordRules.filter(rule => checkPassword(rule, password)).length;
 
-  // Determine password strength based on number of rules matched
   let passwordStrength = "Weak 🔴";
   if (matchedRulesCount >= 3) passwordStrength = "Medium 🟠";
   if (matchedRulesCount === 5) passwordStrength = "Strong 🟢";
 
+  const handleLogin = (e) => {
+    e.preventDefault();
+    
+    if (username === hardcodedUsername && password === hardcodedPassword) {
+      setShowSuccess(true);
+      setErrorMessage('');
+      setTimeout(() => {
+        setShowSuccess(false);
+        window.location.href = "/";
+      }, 2000);
+    } else {
+      setErrorMessage('❌ Incorrect Username or Password');
+    }
+  };
 
-  const handleSubmit = () => {
-    
-    setShowSuccess(true); // ✅ Show success message
-    
+  const handleSignup = (e) => {
+    e.preventDefault();
+
+    if (username.length < 5) {
+      setErrorMessage("❌ Username must be at least 5 characters long.");
+      return;
+    }
+
+    if (matchedRulesCount < 5) {
+      setErrorMessage("❌ Password must meet all strength requirements.");
+      return;
+    }
+
+    setShowSuccess(true);
+    setErrorMessage('');
     setTimeout(() => {
-      setShowSuccess(false); // Hide after 2 seconds
-      window.location.href = "/"; // Redirect to homepage
+      setShowSuccess(false);
+      window.location.href = "/";
     }, 2000);
   };
 
   return (
     <>
       <div className={`flip-container ${!isLogin ? 'flip' : ''}`}>
-
         <div className="flipper">
-          {/* Front side = Login Form */}
+          {/* Login Form */}
           <div className="front">
             <div className="loginsignup-box">
               <h2>Login</h2>
               <form>
                 <div className="user-box">
-                  <input type="text" placeholder=" " required />
+                  <input
+                    type="text"
+                    placeholder=" "
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
                   <label>Username</label>
                 </div>
 
@@ -70,7 +102,10 @@ function LoginSignupcomponent() {
                     <FontAwesomeIcon icon={passwordVisible ? faEyeSlash : faEye} />
                   </span>
                 </div>
-                <a onClick={(e) => {e.preventDefault();handleSubmit(e);}}>
+
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
+
+                <a onClick={handleLogin}>
                   <span></span>
                   <span></span>
                   <span></span>
@@ -84,18 +119,19 @@ function LoginSignupcomponent() {
             </div>
           </div>
 
-          
+          {/* Signup Form */}
           <div className="back">
             <div className="loginsignup-box">
               <h2>Sign Up</h2>
               <form>
                 <div className="user-box">
-                  <input type="text" placeholder=" " required />
-                  <label>Full Name</label>
-                </div>
-
-                <div className="user-box">
-                  <input type="text" placeholder=" " required />
+                  <input
+                    type="text"
+                    placeholder=" "
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
                   <label>Username</label>
                 </div>
 
@@ -131,8 +167,10 @@ function LoginSignupcomponent() {
                     </div>
                   ))}
                 </div>
-                
-                <a onClick={(e) => { e.preventDefault(); handleSubmit(e);}}>
+
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
+
+                <a onClick={handleSignup}>
                   <span></span>
                   <span></span>
                   <span></span>
@@ -150,7 +188,7 @@ function LoginSignupcomponent() {
 
       {showSuccess && (
         <div className="success-box">
-          ✅ Logged in Successfully! Redirecting...
+          ✅ {isLogin ? "Logged in" : "Account created"} Successfully! Redirecting...
         </div>
       )}
     </>
