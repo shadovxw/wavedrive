@@ -1,33 +1,37 @@
 // src/components/navbar/Navbar.jsx
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faTerminal, faCode, faToolbox } from '@fortawesome/free-solid-svg-icons';
-import { GlobalContext } from '../../Globalcontext';
+import { useAuth } from '../../auth/AuthContext';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../auth/firebase';
 import './Navbar.css';
 
 function Navbar() {
-  const { activeIndex, setActiveIndex } = useContext(GlobalContext);
-  const distances = [-6, 172, 352, 532]; 
+  const navigate = useNavigate();
+  const { currentUser, setCurrentUser } = useAuth();
 
   const menuItems = [
-    { path: '/', icon: faHome, text: 'Home' },
+    { path: '/dashboard', icon: faHome, text: 'Home' },
     { path: '/console', icon: faTerminal, text: 'Console' },
     { path: '/compiler', icon: faCode, text: 'Codebase' },
     { path: '/kit', icon: faToolbox, text: 'Kit' },
   ];
 
+  const handleLogout = async () => {
+    await signOut(auth);
+    setCurrentUser(null);
+    navigate('/dashboard');
+  };
+
   return (
     <>
       <nav className="navbar">
-        <div className='nav-link'>
+        <div className="nav-link">
           <ul>
             {menuItems.map((item, index) => (
-              <li 
-                key={index} 
-                className={activeIndex === index ? 'active' : ''}
-                onClick={() => setActiveIndex(index)}
-              >
+              <li key={index}>
                 <Link to={item.path}>
                   <span className="icon">
                     <FontAwesomeIcon icon={item.icon} />
@@ -38,12 +42,30 @@ function Navbar() {
             ))}
           </ul>
         </div>
+
+        {/* ✅ Right side: user info or login/signup */}
+        <div className="login-signup" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginRight: '20px' }}>
+          {currentUser ? (
+            <>
+              <span style={{ color: 'black' }}>{currentUser.email}</span>
+              {currentUser.photoURL && (
+                <img
+                  src={currentUser.photoURL}
+                  alt="Profile"
+                  style={{ width: '40px', height: '40px', borderRadius: '50%' }}
+                />
+              )}
+              <button onClick={handleLogout}>
+                LOGOUT
+              </button>
+            </>
+          ) : (
+            <button onClick={() => navigate('/loginsignup')}>
+              LOGIN/SIGNUP
+            </button>
+          )}
+        </div>
       </nav>
-      <div className='login-signup'>
-        <button onClick={() => window.location.href='/loginsignup'}>
-          LOGIN/SIGNUP
-        </button>
-      </div>
     </>
   );
 }

@@ -326,3 +326,10 @@ body {
   80% { opacity: 1; transform: translateY(0px); }
   100% { opacity: 0; transform: translateY(10px); }
 }
+
+/* LoginSignupcomponent.css – add this block */
+.error-message {
+  color: #ff4d4f;
+  margin-top: 10px;
+  font-size: 14px;
+}

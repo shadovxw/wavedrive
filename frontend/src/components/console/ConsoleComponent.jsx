@@ -1,128 +1,134 @@
 import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import { io } from 'socket.io-client';
 
 function ConsoleComponent() {
-    const [streaming, setStreaming] = useState(false);
-    const [viewCode, setViewCode] = useState(false);
-    const [liveFrame, setLiveFrame] = useState(null);
-    const [gestureFrame, setGestureFrame] = useState(null);
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
-    let intervalId = null;
+  const [streaming, setStreaming] = useState(false);
+  const [command, setCommand] = useState('');
+  const canvasRef = useRef(null);
+  const videoRef = useRef(null);
+  const socketRef = useRef(null);
+  const rpiImageRef = useRef(null);
 
-    const backendURL = 'http://localhost:5000'; // Change this to your backend server
+  useEffect(() => {
+    socketRef.current = io('http://localhost:5000');
 
-    // Start Webcam
-    const startWebcam = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            videoRef.current.srcObject = stream;
-            setStreaming(true);
+    socketRef.current.on('webcam_result', (data) => {
+      const img = new Image();
+      img.src = data.frame;
+      img.onload = () => {
+        const ctx = canvasRef.current.getContext('2d');
+        canvasRef.current.width = img.width;
+        canvasRef.current.height = img.height;
+        ctx.drawImage(img, 0, 0);
+      };
+      setCommand(data.command);
+    });
 
-            intervalId = setInterval(() => {
-                sendFrameToBackend();
-            }, 100); // Sends frames every 100ms
-        } catch (error) {
-            console.error("Error accessing webcam:", error);
-        }
+    socketRef.current.on('rpi_result', (data) => {
+      if (data.rpi_frame && rpiImageRef.current) {
+        rpiImageRef.current.src = data.rpi_frame;
+      }
+    });
+
+    return () => {
+      socketRef.current.disconnect();
     };
+  }, []);
 
-    // Stop Webcam
-    const stopWebcam = () => {
-        if (videoRef.current?.srcObject) {
-            videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-        }
-        clearInterval(intervalId);
-        setStreaming(false);
-    };
+  const startWebcam = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      videoRef.current.srcObject = stream;
+      setStreaming(true);
 
-    // Send Frame to Backend
-    const sendFrameToBackend = () => {
-        if (!videoRef.current || !canvasRef.current) return;
+      const sendFrame = () => {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = videoRef.current.videoWidth;
+        tempCanvas.height = videoRef.current.videoHeight;
+        const ctx = tempCanvas.getContext('2d');
+        ctx.drawImage(videoRef.current, 0, 0);
+        tempCanvas.toBlob(blob => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            socketRef.current.emit('frame', {
+              frame: reader.result,
+              session_id: 'test-session'
+            });
+          };
+          reader.readAsDataURL(blob);
+        }, 'image/jpeg', 0.6);
+      };
 
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-        
-        canvas.toBlob(blob => {
-            const formData = new FormData();
-            formData.append('frame', blob, 'frame.jpg');
+      const intervalId = setInterval(sendFrame, 200);
+      videoRef.current.intervalId = intervalId;
+    } catch (err) {
+      console.error('Webcam access error:', err);
+    }
+  };
 
-            axios.post(`${backendURL}/upload-frame`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            })
-            .then(response => console.log("Frame sent successfully"))
-            .catch(error => console.error("Error sending frame:", error));
-        }, 'image/jpeg');
-    };
+  const stopWebcam = () => {
+    if (videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      clearInterval(videoRef.current.intervalId);
+    }
+    setStreaming(false);
+  };
 
-    // Fetch Frames from Backend
-    const fetchFrames = () => {
-        axios.get(`${backendURL}/get-live-frame`, { responseType: 'blob' })
-            .then(response => setLiveFrame(URL.createObjectURL(response.data)))
-            .catch(error => console.error("Error fetching live frame:", error));
+  return (
+    <div style={{ textAlign: 'center', padding: '20px' }}>
+      <br />
+      <br />
+      <br />
+      <h1>WaveDrive | Gesture Console</h1>
+      <br />
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+        <video
+          ref={videoRef}
+          width="0"
+          height="0"
+          autoPlay
+          playsInline
+          style={{ display: streaming ? 'block' : 'none' }}
+        />
+        {streaming && (
+          <>
+            <canvas
+              ref={canvasRef}
+              width="320"
+              height="240"
+              style={{ width: '400px', height: '500px' }}
+            />
+            <img
+              ref={rpiImageRef}
+              alt="RPi Feed"
+              width="700"
+              height="500"
+              style={{ background: '#eee', borderRadius: '4px' }}
+            />
+          </>
+        )}
+      </div>
 
-        axios.get(`${backendURL}/get-gesture-frame`, { responseType: 'blob' })
-            .then(response => setGestureFrame(URL.createObjectURL(response.data)))
-            .catch(error => console.error("Error fetching gesture frame:", error));
-    };
+      <h3>Command: {command || "Waiting..."}</h3>
 
-    useEffect(() => {
-        const interval = setInterval(fetchFrames, 500); // Fetch frames every 500ms
-        return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-            <h1>Webcam Stream & Frame Processing</h1>
-
-            {/* Webcam View & Canvas Processing */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-                <video ref={videoRef} width="320" height="240" autoPlay playsInline hidden={!streaming}></video>
-                <canvas ref={canvasRef} width="320" height="240" style={{ display: streaming ? 'block' : 'none' }}></canvas>
-            </div>
-
-            {/* Buttons */}
-            <div style={{ marginTop: '20px' }}>
-                <button onClick={streaming ? stopWebcam : startWebcam} style={buttonStyle}>
-                    {streaming ? "Stop Webcam" : "Start Webcam"}
-                </button>
-                <button onClick={() => setViewCode(!viewCode)} style={buttonStyle}>
-                    {viewCode ? "Hide Code" : "View Code"}
-                </button>
-            </div>
-
-            {/* Received Frames from Backend */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '20px' }}>
-                <div>
-                    <h3>Live Feed from RPi</h3>
-                    {liveFrame ? <img src={liveFrame} width="320" height="240" alt="Live Feed" /> : <p>No feed available</p>}
-                </div>
-                <div>
-                    <h3>Gestures Captured</h3>
-                    {gestureFrame ? <img src={gestureFrame} width="320" height="240" alt="Gesture Feed" /> : <p>No gestures available</p>}
-                </div>
-            </div>
-
-            {/* Code Viewer */}
-            {viewCode && (
-                <pre style={{ textAlign: 'left', backgroundColor: '#f4f4f4', padding: '10px', borderRadius: '5px', marginTop: '20px', overflowX: 'auto' }}> {`NO CODE IMPLEMENTED YET`}
-                </pre>
-            )}
-        </div>
-    );
+      <div style={{ marginTop: '20px' }}>
+        <button onClick={streaming ? stopWebcam : startWebcam} style={buttonStyle}>
+          {streaming ? "Stop Feeds" : "Start Feeds"}
+        </button>
+      </div>
+    </div>
+  );
 }
 
-// Button Styles
 const buttonStyle = {
-    padding: '10px 20px',
-    fontSize: '16px',
-    margin: '10px',
-    cursor: 'pointer',
-    border: 'none',
-    borderRadius: '5px',
-    backgroundColor: '#007BFF',
-    color: 'white'
+  padding: '10px 20px',
+  fontSize: '16px',
+  margin: '10px',
+  cursor: 'pointer',
+  border: 'none',
+  borderRadius: '5px',
+  backgroundColor: '#007BFF',
+  color: 'white'
 };
 
 export default ConsoleComponent;

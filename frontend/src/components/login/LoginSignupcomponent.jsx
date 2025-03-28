@@ -1,19 +1,27 @@
+// components/login/LoginSignupcomponent.jsx
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import './LoginSignupcomponent.css';
 
+import {
+  doCreateUserWithEmailAndPassword,
+  doSignInWithEmailAndPassword,
+} from '../../auth/index'; // ✅ fixed path
+
+import { useAuth } from '../../auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 function LoginSignupcomponent() {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Hardcoded credentials for login validation
-  const hardcodedUsername = 'admin';
-  const hardcodedPassword = 'pass';
+  const { setCurrentUser } = useAuth();
+  const navigate = useNavigate();
 
   const passwordRules = [
     { label: "At least 8 characters", regex: /.{8,}/ },
@@ -30,40 +38,41 @@ function LoginSignupcomponent() {
   if (matchedRulesCount >= 3) passwordStrength = "Medium 🟠";
   if (matchedRulesCount === 5) passwordStrength = "Strong 🟢";
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    
-    if (username === hardcodedUsername && password === hardcodedPassword) {
+    try {
+      const user = await doSignInWithEmailAndPassword(email, password);
+      setCurrentUser(user);
       setShowSuccess(true);
       setErrorMessage('');
       setTimeout(() => {
         setShowSuccess(false);
-        window.location.href = "/";
+        navigate("/dashboard");
       }, 2000);
-    } else {
-      setErrorMessage('❌ Incorrect Username or Password');
+    } catch (error) {
+      setErrorMessage(`❌ ${error.message}`);
     }
   };
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-
-    if (username.length < 5) {
-      setErrorMessage("❌ Username must be at least 5 characters long.");
-      return;
-    }
-
     if (matchedRulesCount < 5) {
       setErrorMessage("❌ Password must meet all strength requirements.");
       return;
     }
 
-    setShowSuccess(true);
-    setErrorMessage('');
-    setTimeout(() => {
-      setShowSuccess(false);
-      window.location.href = "/";
-    }, 2000);
+    try {
+      const user = await doCreateUserWithEmailAndPassword(email, password);
+      setCurrentUser(user);
+      setShowSuccess(true);
+      setErrorMessage('');
+      setTimeout(() => {
+        setShowSuccess(false);
+        navigate("/dashboard");
+      }, 2000);
+    } catch (error) {
+      setErrorMessage(`❌ ${error.message}`);
+    }
   };
 
   return (
@@ -77,13 +86,13 @@ function LoginSignupcomponent() {
               <form>
                 <div className="user-box">
                   <input
-                    type="text"
+                    type="email"
                     placeholder=" "
                     required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
-                  <label>Username</label>
+                  <label>Email</label>
                 </div>
 
                 <div className="user-box" style={{ position: 'relative' }}>
@@ -95,7 +104,7 @@ function LoginSignupcomponent() {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                   <label>Password</label>
-                  <span 
+                  <span
                     className="toggle-password"
                     onClick={() => setPasswordVisible(!passwordVisible)}
                   >
@@ -106,10 +115,7 @@ function LoginSignupcomponent() {
                 {errorMessage && <div className="error-message">{errorMessage}</div>}
 
                 <a onClick={handleLogin}>
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  <span></span>
+                  <span></span><span></span><span></span><span></span>
                   Login
                 </a>
               </form>
@@ -126,13 +132,13 @@ function LoginSignupcomponent() {
               <form>
                 <div className="user-box">
                   <input
-                    type="text"
+                    type="email"
                     placeholder=" "
                     required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
-                  <label>Username</label>
+                  <label>Email</label>
                 </div>
 
                 <div className="user-box" style={{ position: 'relative' }}>
@@ -144,7 +150,7 @@ function LoginSignupcomponent() {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                   <label>Password</label>
-                  <span 
+                  <span
                     className="toggle-password"
                     onClick={() => setPasswordVisible(!passwordVisible)}
                   >
@@ -171,10 +177,7 @@ function LoginSignupcomponent() {
                 {errorMessage && <div className="error-message">{errorMessage}</div>}
 
                 <a onClick={handleSignup}>
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  <span></span>
+                  <span></span><span></span><span></span><span></span>
                   Sign Up
                 </a>
               </form>

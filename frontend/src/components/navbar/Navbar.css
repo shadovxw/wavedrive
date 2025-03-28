@@ -148,8 +148,8 @@
     overflow: hidden;
     background-color: transparent;
     color: #00366b;
-    top: 60px;
-    right: 100px;
+    top: 0px;
+    right: -600px;
     font-size: 25px;
     transition: .3s;
     z-index: 1;
@@ -179,4 +179,18 @@
   .login-signup button:hover{
     border: 2px solid #14005a;
     color: #ffffff;
+  }
+
+  .login-signup img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  /* Email text */
+  .login-signup span {
+    color: #00366b;
+    font-weight: 600;
+    font-size: 18px;
   }
