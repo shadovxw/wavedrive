@@ -5,17 +5,7 @@ import mediapipe as mp
 from datetime import datetime
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
-from pymongo import MongoClient
 from flask_cors import CORS
-# from dotenv import load_dotenv
-# import os
-
-# # Load environment variables from .env file
-# load_dotenv()
-
-# # Access environment variables
-# secret_key = os.getenv('SECRET_KEY')
-# database_url = os.getenv('DATABASE_URL')
 
 # Flask + SocketIO Setup
 app = Flask(__name__)
@@ -24,11 +14,6 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "https://wavedrive-3.onrender.com"}})  # Allow your frontend domain
 socketio = SocketIO(app, cors_allowed_origins='*')  # Update this line to ensure CORS is set
 
-
-# MongoDB Setup
-client = MongoClient("mongodb://localhost:27017/")
-db = client.wavedrive
-gesture_logs = db.gesture_logs
 
 # MediaPipe Setup
 mp_hands = mp.solutions.hands
@@ -55,15 +40,6 @@ def gesture_controls(landmarks):
     else:
         return 'stop'
 
-# Log gesture to MongoDB
-def log_gesture(session_id, gesture, command):
-    gesture_logs.insert_one({
-        "session_id": session_id,
-        "gesture": gesture,
-        "command": command,
-        "timestamp": datetime.now()
-    })
-
 # WebSocket: Handle webcam frames (used for gesture detection)
 @socketio.on('frame')
 def handle_frame(data):
@@ -86,8 +62,6 @@ def handle_frame(data):
         mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
         landmarks = [(lm.x, lm.y, lm.z) for lm in hand_landmarks.landmark]
         command = gesture_controls(landmarks)
-        if session_id:
-            log_gesture(session_id, 'hand', command)
 
     # Encode and send result back to client
     _, buffer = cv2.imencode('.jpg', frame)
@@ -113,4 +87,3 @@ def index():
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
-
