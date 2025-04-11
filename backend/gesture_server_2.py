@@ -6,6 +6,15 @@ from datetime import datetime
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
 from pymongo import MongoClient
+# from dotenv import load_dotenv
+# import os
+
+# # Load environment variables from .env file
+# load_dotenv()
+
+# # Access environment variables
+# secret_key = os.getenv('SECRET_KEY')
+# database_url = os.getenv('DATABASE_URL')
 
 # Flask + SocketIO Setup
 app = Flask(__name__)

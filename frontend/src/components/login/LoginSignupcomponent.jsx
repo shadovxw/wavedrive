@@ -47,7 +47,7 @@ function LoginSignupcomponent() {
       setErrorMessage('');
       setTimeout(() => {
         setShowSuccess(false);
-        navigate("/dashboard");
+        navigate("/");
       }, 2000);
     } catch (error) {
       setErrorMessage(`❌ ${error.message}`);
@@ -68,7 +68,7 @@ function LoginSignupcomponent() {
       setErrorMessage('');
       setTimeout(() => {
         setShowSuccess(false);
-        navigate("/dashboard");
+        navigate("/");
       }, 2000);
     } catch (error) {
       setErrorMessage(`❌ ${error.message}`);

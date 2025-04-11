@@ -10,7 +10,7 @@ function Kit() {
 
         </div>
         <div className='demo1'>
-            <button onClick={(()=> window.location.href='/dashboard')}>GO BACK TO HOME</button> 
+            <button onClick={(()=> window.location.href='/')}>GO BACK TO HOME</button> 
         </div>
           
         
