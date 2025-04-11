@@ -1,3 +1,4 @@
+gunicorn
 Flask==2.2.5
 flask-socketio==5.3.6
 python-socketio==5.11.1
