@@ -10,7 +10,7 @@ function ConsoleComponent() {
   const rpiImageRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:5000');
+    socketRef.current = io('https://wavedrive-3.onrender.com/');
 
     socketRef.current.on('webcam_result', (data) => {
       const img = new Image();

@@ -6,6 +6,7 @@ from datetime import datetime
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
 from pymongo import MongoClient
+from flask_cors import CORS
 # from dotenv import load_dotenv
 # import os
 
@@ -18,7 +19,11 @@ from pymongo import MongoClient
 
 # Flask + SocketIO Setup
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins='*')
+
+# Enable CORS for all routes or restrict to specific domain
+CORS(app, resources={r"/*": {"origins": "https://wavedrive-3.onrender.com"}})  # Allow your frontend domain
+socketio = SocketIO(app, cors_allowed_origins='*')  # Update this line to ensure CORS is set
+
 
 # MongoDB Setup
 client = MongoClient("mongodb://localhost:27017/")
