@@ -4,7 +4,9 @@ import Kit from "../components/kit/Kit"
 function KitPage() {
 
     return (<>
-    {/* <Navbar /> */}
+    <Navbar />
+    <br></br>
+    <br></br>
     <Kit />
     </>)
 };

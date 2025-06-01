@@ -25,7 +25,7 @@ function LandingComponent() {
                             </div>
                             <div className="card-back">
                                 <p>Discover the future of driving. Try now!</p>
-                                <Link to="/" className="btn">Go to Console</Link>
+                                <Link to="/console" className="btn">Go to Console</Link>
                             </div>
                         </div>
                     </div>

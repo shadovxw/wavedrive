@@ -1,17 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
+import './ConsoleComponent.css'
 
 function ConsoleComponent() {
   const [streaming, setStreaming] = useState(false);
   const [command, setCommand] = useState('');
+  const [rpiFrame, setRpiFrame] = useState(null); // Store the RPi feed frame here
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
   const socketRef = useRef(null);
-  const rpiImageRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = io('https://wavedrive-3.onrender.com/');
+    socketRef.current = io('http://127.0.0.1:5000');
 
+    // Listen for webcam frames (processed frames)
     socketRef.current.on('webcam_result', (data) => {
       const img = new Image();
       img.src = data.frame;
@@ -24,10 +26,9 @@ function ConsoleComponent() {
       setCommand(data.command);
     });
 
+    // Listen for Raspberry Pi feed
     socketRef.current.on('rpi_result', (data) => {
-      if (data.rpi_frame && rpiImageRef.current) {
-        rpiImageRef.current.src = data.rpi_frame;
-      }
+      setRpiFrame(data.rpi_frame);  // Store the RPi frame here
     });
 
     return () => {
@@ -75,12 +76,11 @@ function ConsoleComponent() {
   };
 
   return (
+    
     <div style={{ textAlign: 'center', padding: '20px' }}>
-      <br />
-      <br />
-      <br />
+          <br></br>
+          <br></br>
       <h1>WaveDrive | Gesture Console</h1>
-      <br />
       <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
         <video
           ref={videoRef}
@@ -95,22 +95,23 @@ function ConsoleComponent() {
             <canvas
               ref={canvasRef}
               width="320"
-              height="240"
-              style={{ width: '400px', height: '500px' }}
-            />
-            <img
-              ref={rpiImageRef}
-              alt="RPi Feed"
-              width="700"
               height="500"
-              style={{ background: '#eee', borderRadius: '4px' }}
+              style={{ width: '400px', height: '300px' }}
             />
+            {/* Display RPi feed here */}
+            {rpiFrame && (
+              <img
+                src={rpiFrame}
+                alt="RPi Feed"
+                width="700"
+                height="500"
+                style={{ background: '#eee', borderRadius: '4px' }}
+              />
+            )}
           </>
         )}
       </div>
-
-      <h3>Command: {command || "Waiting..."}</h3>
-
+      <h3>Command: <span className="h33">{command || "Waiting..."}</span> </h3>
       <div style={{ marginTop: '20px' }}>
         <button onClick={streaming ? stopWebcam : startWebcam} style={buttonStyle}>
           {streaming ? "Stop Feeds" : "Start Feeds"}

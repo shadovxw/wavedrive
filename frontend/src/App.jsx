@@ -6,22 +6,27 @@ import CompilerPage from './pages/CompilerPage';
 import ConsolePage from './pages/ConsolePage.jsx';
 import { AuthProvider } from "./auth/AuthContext.jsx";
 import ProtectedRoute from './auth/ProtectedRoutes.jsx';
+import { CartProvider } from './auth/CartContext.jsx';
+import CartPages from './pages/CartPages.jsx';
 
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/loginsignup" element={<LoginSignupcomponent />} />
-            {/* Protected Routes */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/compiler" element={<ProtectedRoute><CompilerPage /></ProtectedRoute>} />
-            <Route path="/console" element={<ProtectedRoute><ConsolePage /></ProtectedRoute>} />
-            <Route path="/kit" element={<ProtectedRoute><KitPage /></ProtectedRoute>} />
-          </Routes>
-        </div>
-      </Router>
+      <CartProvider>
+          <Router>
+            <div className="App">
+              <Routes>
+                <Route path="/loginsignup" element={<LoginSignupcomponent />} />
+                {/* Protected Routes */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/compiler" element={<ProtectedRoute><CompilerPage /></ProtectedRoute>} />
+                <Route path="/console" element={<ProtectedRoute><ConsolePage /></ProtectedRoute>} />
+                <Route path="/kit" element={<ProtectedRoute><KitPage /></ProtectedRoute>} />
+                <Route path="/cart" element={<ProtectedRoute><CartPages /></ProtectedRoute>} />
+              </Routes>
+            </div>
+          </Router>
+        </CartProvider>
     </AuthProvider>
   );
 }

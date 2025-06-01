@@ -13,7 +13,7 @@ function Navbar() {
   const { currentUser, setCurrentUser } = useAuth();
 
   const menuItems = [
-    { path: '', icon: faHome, text: 'Home' },
+    { path: '/', icon: faHome, text: 'Home' },
     { path: '/console', icon: faTerminal, text: 'Console' },
     { path: '/compiler', icon: faCode, text: 'Codebase' },
     { path: '/kit', icon: faToolbox, text: 'Kit' },
