@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: wavedrive-backend
+    runtime: python
+    buildCommand: ""
+    startCommand: gunicorn app:app --worker-class eventlet -b 0.0.0.0:$PORT
+    envVars:
+      - key: FLASK_ENV
+        value: production
