@@ -8,12 +8,18 @@ function ConsoleComponent() {
   const [streaming, setStreaming] = useState(false);
   const [command, setCommand] = useState('');
   const [rpiFrame, setRpiFrame] = useState(null);
+
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
   const socketRef = useRef(null);
 
   useEffect(() => {
+    console.log('[Init] Connecting to socket server...');
     socketRef.current = io('https://wavedrive-backend.onrender.com');
+
+    socketRef.current.on('connect', () => {
+      console.log('[Socket] Connected:', socketRef.current.id);
+    });
 
     socketRef.current.on('ip_registered', (data) => {
       console.log('[Server] IP Registered:', data.message);
@@ -21,7 +27,7 @@ function ConsoleComponent() {
     });
 
     socketRef.current.on('webcam_result', (data) => {
-      console.log('Received webcam_result:', data); 
+      console.log('[Socket] Received webcam_result');
       const img = new Image();
       img.src = data.frame;
       img.onload = () => {
@@ -29,31 +35,38 @@ function ConsoleComponent() {
         canvasRef.current.width = img.width;
         canvasRef.current.height = img.height;
         ctx.drawImage(img, 0, 0);
+        console.log('[Canvas] Webcam frame rendered');
       };
       setCommand(data.command);
     });
 
     socketRef.current.on('rpi_result', (data) => {
+      console.log('[Socket] Received rpi_result');
       setRpiFrame(data.rpi_frame);
     });
 
-    return () => socketRef.current.disconnect();
+    return () => {
+      console.log('[Cleanup] Disconnecting socket...');
+      socketRef.current.disconnect();
+    };
   }, []);
 
   const registerIP = () => {
     if (ip.trim() !== '') {
+      console.log('[Action] Registering IP:', ip);
       socketRef.current.emit('register_ip', { ip: ip.trim() });
     }
   };
 
   const startWebcam = async () => {
+    console.log('[Action] Starting webcam...');
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoRef.current.srcObject = stream;0
-    console.log('Webcam stream started:', stream);
+    videoRef.current.srcObject = stream;
+    console.log('[Webcam] Stream started:', stream);
     setStreaming(true);
 
-    // Start transmission on backend
     socketRef.current.emit('start_transmission');
+    console.log('[Socket] Sent start_transmission');
 
     const sendFrame = () => {
       const tempCanvas = document.createElement('canvas');
@@ -61,10 +74,12 @@ function ConsoleComponent() {
       tempCanvas.height = videoRef.current.videoHeight;
       const ctx = tempCanvas.getContext('2d');
       ctx.drawImage(videoRef.current, 0, 0);
+
       tempCanvas.toBlob(blob => {
         const reader = new FileReader();
         reader.onloadend = () => {
           socketRef.current.emit('frame', { frame: reader.result });
+          console.log('[Socket] Sent frame');
         };
         reader.readAsDataURL(blob);
       }, 'image/jpeg');
@@ -74,16 +89,17 @@ function ConsoleComponent() {
   };
 
   const stopWebcam = () => {
+    console.log('[Action] Stopping webcam...');
     if (videoRef.current.srcObject) {
       videoRef.current.srcObject.getTracks().forEach(track => track.stop());
       clearInterval(videoRef.current.intervalId);
     }
     socketRef.current.emit('stop_transmission');
     setStreaming(false);
+    console.log('[Socket] Sent stop_transmission');
   };
 
   return (
-
     <div className="console-container">
       <h1>WaveDrive Console</h1>
 
@@ -100,6 +116,7 @@ function ConsoleComponent() {
       ) : (
         <>
           <p className="registered-msg">Registered! You may start transmission.</p>
+
           <div className="video-wrapper">
             <div className="feed-container">
               <div className="feed">
@@ -111,6 +128,7 @@ function ConsoleComponent() {
                   style={{ background: '#eee', borderRadius: '4px' }}
                 />
               </div>
+
               <div className="feed">
                 <h4>RPi Feed</h4>
                 {rpiFrame ? (
@@ -131,6 +149,8 @@ function ConsoleComponent() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       borderRadius: '4px',
+                      fontSize: '18px',
+                      color: '#666'
                     }}
                   >
                     Waiting for RPi frame...
@@ -140,7 +160,10 @@ function ConsoleComponent() {
             </div>
           </div>
 
-          <h3>Command: <span className="command">{command}</span></h3>
+          <h3>
+            Command: <span className="command">{command}</span>
+          </h3>
+
           <button onClick={streaming ? stopWebcam : startWebcam}>
             {streaming ? 'Stop Feeds' : 'Start Feeds'}
           </button>

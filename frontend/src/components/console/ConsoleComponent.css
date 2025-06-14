@@ -1,40 +1,22 @@
 .console-container {
   text-align: center;
-  padding: 20px;
+  padding: 30px;
 }
 
 .ip-form input {
-  padding: 10px;
-  font-size: 16px;
+  padding: 8px;
+  width: 200px;
+  margin-right: 10px;
 }
 
 .ip-form button {
-  padding: 10px 20px;
-  margin-left: 10px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 8px 16px;
 }
 
 .registered-msg {
-  margin: 10px;
-  font-weight: bold;
   color: green;
-}
-
-
-.rpi-frame {
-  width: 640px;
-  height: 480px;
-  background: #eee;
-  border-radius: 4px;
-}
-
-.command {
-  font-size: 20px;
-  color: #007bff;
+  font-weight: bold;
+  margin-bottom: 20px;
 }
 
 .video-wrapper {
@@ -51,8 +33,12 @@
   gap: 20px;
 }
 
-.feed {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.feed h4 {
+  margin-bottom: 8px;
+}
+
+.command {
+  font-weight: bold;
+  color: #333;
+  margin-left: 10px;
 }
