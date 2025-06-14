@@ -121,6 +121,13 @@ function ConsoleComponent() {
             <div className="feed-container">
               <div className="feed">
                 <h4>Webcam Feed</h4>
+                <video
+  ref={videoRef}
+  autoPlay
+  playsInline
+  style={{ visibility: 'hidden', position: 'absolute', width: 0, height: 0 }}
+/>
+
                 <canvas
                   ref={canvasRef}
                   width="700"
