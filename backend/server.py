@@ -1,11 +1,17 @@
 import base64
 import cv2
 import numpy as np
-import mediapipe as mp
 import requests
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
 import os
+
+try:
+    import mediapipe as mp
+except ImportError:
+    import subprocess
+    subprocess.run(["pip", "install", "mediapipe"])
+    import mediapipe as mp
 
 # Setup Flask and Socket.IO
 app = Flask(__name__)
