@@ -101,23 +101,19 @@ function ConsoleComponent() {
         <>
           <p className="registered-msg">Registered! You may start transmission.</p>
           <div className="video-wrapper">
-            <video
-              ref={videoRef}
-              width="0"
-              height="0"
-              autoPlay
-              playsInline
-              style={{ display: streaming ? 'block' : 'none' }}
-            />
-            {streaming && (
-              <>
+            <div className="feed-container">
+              <div className="feed">
+                <h4>Webcam Feed</h4>
                 <canvas
                   ref={canvasRef}
-                    width="700"
-                    height="500"
-                    style={{ background: '#eee', borderRadius: '4px' }}
+                  width="700"
+                  height="500"
+                  style={{ background: '#eee', borderRadius: '4px' }}
                 />
-                {rpiFrame && (
+              </div>
+              <div className="feed">
+                <h4>RPi Feed</h4>
+                {rpiFrame ? (
                   <img
                     src={rpiFrame}
                     alt="RPi Feed"
@@ -125,10 +121,25 @@ function ConsoleComponent() {
                     height="500"
                     style={{ background: '#eee', borderRadius: '4px' }}
                   />
+                ) : (
+                  <div
+                    style={{
+                      width: '700px',
+                      height: '500px',
+                      background: '#ddd',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    Waiting for RPi frame...
+                  </div>
                 )}
-              </>
-            )}
+              </div>
+            </div>
           </div>
+
           <h3>Command: <span className="command">{command}</span></h3>
           <button onClick={streaming ? stopWebcam : startWebcam}>
             {streaming ? 'Stop Feeds' : 'Start Feeds'}
