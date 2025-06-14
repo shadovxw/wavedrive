@@ -83,50 +83,8 @@ def handle_rpi_feed(data):
 
 @socketio.on('frame')
 def handle_frame(data):
-    try:
-        blob = data.get('frame')
-        if isinstance(blob, str):
-            blob = base64.b64decode(blob.split(',')[1])
-
-        np_data = np.frombuffer(blob, np.uint8)
-        frame = cv2.imdecode(np_data, cv2.IMREAD_COLOR)
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = hands.process(rgb)
-
-        command = 'stop'  # Default command
-
-        if results.multi_hand_landmarks:
-            print("[Debug] Hand landmarks detected")
-            landmarks = [(lm.x, lm.y, lm.z) for lm in results.multi_hand_landmarks[0].landmark]
-            mp_drawing.draw_landmarks(frame, results.multi_hand_landmarks[0], mp_hands.HAND_CONNECTIONS)
-            command = gesture_controls(landmarks)
-        else:
-            print("[Debug] No hands detected")
-
-        # Send command to Raspberry Pi if IP is registered
-        if registered_ip:
-            try:
-                response = requests.post(
-                    f"http://{registered_ip}:5000/command",
-                    json={'command': command},
-                    headers={'Content-Type': 'application/json'}
-                )
-                print(f"[{registered_ip}] Sent command: {command}, Status: {response.status_code}")
-            except Exception as e:
-                print(f"Failed to send command: {e}")
-        else:
-            print("[Warning] No registered IP to send command")
-
-        # Encode and emit the frame regardless of detection
-        _, buffer = cv2.imencode('.jpg', frame)
-        encoded = base64.b64encode(buffer).decode('utf-8')
-        print(f"[Emit] Sending command: {command}, Frame size: {len(encoded)}")
-        emit('webcam_result', {'command': command, 'frame': f'data:image/jpeg;base64,{encoded}'})
-    except Exception as e:
-        print(f"[Error] Frame handling error: {e}")
-
-
     client_ip = request.remote_addr
+
     if client_ip != registered_ip:
         print(f"[BLOCKED FRAME] Unauthorized IP: {client_ip}")
         return
@@ -146,9 +104,12 @@ def handle_frame(data):
 
         command = 'stop'
         if results.multi_hand_landmarks:
+            print("[Debug] Hand landmarks detected")
             landmarks = [(lm.x, lm.y, lm.z) for lm in results.multi_hand_landmarks[0].landmark]
             mp_drawing.draw_landmarks(frame, results.multi_hand_landmarks[0], mp_hands.HAND_CONNECTIONS)
             command = gesture_controls(landmarks)
+        else:
+            print("[Debug] No hands detected")
 
         if registered_ip:
             try:
