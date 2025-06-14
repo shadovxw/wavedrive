@@ -18,7 +18,6 @@ hands = mp_hands.Hands()
 
 RPI_IP = "http://192.168.179.160:5000"  
 
-
 def gesture_controls(landmarks):
     try:
         if (landmarks[2][1] > landmarks[4][1] and

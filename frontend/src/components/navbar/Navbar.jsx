@@ -1,6 +1,6 @@
 // src/components/navbar/Navbar.jsx
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faTerminal, faCode, faToolbox } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../auth/AuthContext';
@@ -11,6 +11,9 @@ import './Navbar.css';
 function Navbar() {
   const navigate = useNavigate();
   const { currentUser, setCurrentUser } = useAuth();
+  const {currentPage, setCurrentPage } = useState();
+  const location = useLocation()
+
 
   const menuItems = [
     { path: '/', icon: faHome, text: 'Home' },
@@ -29,9 +32,11 @@ function Navbar() {
     <>
       <nav className="navbar">
         <div className="nav-link">
-          <ul>
-            {menuItems.map((item, index) => (
-              <li key={index}>
+        <ul>
+          {menuItems.map((item, index) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <li key={index} className={isActive ? 'current-page' : ''}>
                 <Link to={item.path}>
                   <span className="icon">
                     <FontAwesomeIcon icon={item.icon} />
@@ -39,11 +44,12 @@ function Navbar() {
                   <span className="text">{item.text}</span>
                 </Link>
               </li>
-            ))}
-          </ul>
+            );
+          })}
+        </ul>
+
         </div>
 
-        {/* ✅ Right side: user info or login/signup */}
         <div className="login-signup" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginRight: '20px' }}>
           {currentUser ? (
             <>

@@ -10,93 +10,80 @@
     justify-content: center;
     align-items: center;
     border-radius: 0px;
-    z-index: 1000;
-    padding-bottom: 35px;
-    border-bottom: 2px solid black;
-    
-  }
-  
-  /* Styling for both text and icon elements */
-  .text{
-    color: #000000;
+    z-index: 10;
   }
 
-  .icon {
-    color: #000000;
-    z-index: 1001;
-  }
-  
-  /* Unordered list that holds the menu items */
-  ul {
-    display: flex;
-    width: 800px;
-    padding: 0;
-    justify-content: space-evenly;
-  }
-  
-  /* List items: each menu option */
-  li {
-    position: relative;
-    list-style: none;
-    width: 100px;
-    height: 50px;
-  }
-  
-  /* Anchor tag styling inside list items */
-  li a {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
-    text-align: center;
-    font-weight: 500;
-    gap: 100px;
-  }
-  
-  /* Icon styling inside the anchor */
-  a .icon {
-    position: relative;
-    display: block;
-    line-height: 65px;
-    font-size: 1.5rem;
-    text-align: center;
-    transition: 1s;
-  }
-  
-  /* When a list item is active, move its icon upward */
-  li.active a .icon {
-    color: #fff;
-    opacity: 0;
-  }
-  
-  /* Text styling for the label under the icon */
-  a .text {
-    position: absolute;
-    font-weight: bold;
-    font-size: 2rem;
-    transition: 1.5s;
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  
-  /* When active, show the text and adjust its position */
-  li.active a .text {
-    opacity: 1;
-    animation: fadeIn 2s ease forwards;
-    transform: translateY(10px);
-  }
+/* Unordered list that holds the menu items */
+ul {
+  display: flex;
+  width: 800px;
+  padding: 0;
+  justify-content: space-evenly;
+}
 
-  @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* List items: each menu option */
+li {
+  position: relative;
+  list-style: none;
+  width: 100px;
+  height: 50px;
+}
+
+/* Anchor tag styling inside list items */
+li a {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  text-align: center;
+  font-weight: 500;
+  gap: 100px;
+}
+
+/* Icon styling inside the anchor */
+a .icon {
+  position: relative;
+  display: block;
+  color: #000;
+  line-height: 65px;
+  font-size: 1.5rem;
+  text-align: center;
+  transition: 1s;
+}
+
+
+a .text {
+  position: absolute;
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: black;
+  transition: 1.5s;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+li:hover a .text{
+  opacity: 1;
+  font-size: 1.5rem;
+}
+.current-page a .text {
+  opacity: 1;
+
+/* animation: fadeIn 2s ease forwards; */
+  
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
   
   /* Indicator element styling (the moving circle) */
