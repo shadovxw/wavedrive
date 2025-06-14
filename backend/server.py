@@ -5,13 +5,8 @@ import requests
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
 import os
+import mediapipe as mp
 
-try:
-    import mediapipe as mp
-except ImportError:
-    import subprocess
-    subprocess.run(["pip", "install", "mediapipe"])
-    import mediapipe as mp
 
 # Setup Flask and Socket.IO
 app = Flask(__name__)

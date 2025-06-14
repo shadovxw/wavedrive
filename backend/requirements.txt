@@ -6,5 +6,5 @@ opencv-python
 requests
 numpy
 gunicorn
-mediapipe @ https://github.com/google/mediapipe/releases/download/v0.10.3/mediapipe-0.10.3-cp310-cp310-manylinux2014_x86_64.whl
+mediapipe 
 
