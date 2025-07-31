@@ -1,27 +1,37 @@
+import eventlet
+eventlet.monkey_patch()
+
 import base64
 import cv2
 import numpy as np
 import mediapipe as mp
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import eventlet
-eventlet.monkey_patch()
+from flask_socketio import SocketIO
 
+# Flask Setup
 app = Flask(__name__)
 CORS(app, origins=[
     "http://localhost:5000",
     "https://wavedrive-backend.onrender.com"
 ])
-# Setup MediaPipe
+
+# SocketIO Setup
+socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=[
+    "http://localhost:5000",
+    "https://wavedrive-backend.onrender.com"
+])
+
+# MediaPipe Setup (lazy init will be better for large models, but ok here)
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(
-    static_image_mode=True,  # ← ADD THIS
+    static_image_mode=True,
     max_num_hands=1,
     min_detection_confidence=0.5
 )
-
 mp_drawing = mp.solutions.drawing_utils
 
+# Gesture Recognition Logic
 def gesture_controls(landmarks):
     try:
         if (landmarks[2][1] > landmarks[4][1] and
@@ -45,6 +55,7 @@ def gesture_controls(landmarks):
         print(f"[GESTURE ERROR] {e}")
         return 'stop'
 
+# POST Route: Called only when frame is sent
 @app.route('/process', methods=['POST'])
 def process_frame():
     try:
@@ -57,13 +68,14 @@ def process_frame():
         if ',' in frame_data:
             frame_data = frame_data.split(',')[1]  # Remove base64 header
 
-        # Decode the base64 image
+        # Decode base64 to image
         img_bytes = base64.b64decode(frame_data)
         np_arr = np.frombuffer(img_bytes, np.uint8)
         frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
         if frame is None:
             raise ValueError("Frame decode returned None")
 
+        # Process hand landmarks
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = hands.process(rgb)
 
@@ -75,7 +87,7 @@ def process_frame():
         else:
             print("[INFO] No hands detected")
 
-        # Re-encode the frame to return it
+        # Encode processed frame back to base64
         _, buffer = cv2.imencode('.jpg', frame)
         encoded_frame = base64.b64encode(buffer).decode('utf-8')
 
@@ -93,9 +105,4 @@ def index():
     return "Gesture Processor Microservice Running"
 
 if __name__ == '__main__':
-    from flask_socketio import SocketIO
-    socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=[
-        "http://localhost:5000",
-        "https://wavedrive-backend.onrender.com"
-    ])
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=6000)

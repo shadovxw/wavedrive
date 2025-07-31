@@ -145,8 +145,8 @@ const startWebcam = async () => {
                 <h4>Webcam Feed</h4>
                 <video
                   ref={videoRef}
-                  width="0"
-                  height="0"
+                  width="100"
+                  height="100"
                   autoPlay
                   playsInline
                   muted
