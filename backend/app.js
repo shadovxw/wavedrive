@@ -11,7 +11,7 @@ const io = new Server(server, { cors: { origin: '*' } });
 
 let registeredIP = null;
 let transmissionActive = false;
-const processorURL = 'http://localhost:6060/process'; // Python microservice
+const processorURL = 'https://wavedrive-service.onrender.com/process'; // Python microservice
 
 io.on('connection', (socket) => {
   console.log('[CONNECTED] Client');
@@ -45,7 +45,6 @@ io.on('connection', (socket) => {
     // }
 
     try {
-      console.log("frames", data.frame)
       const response = await axios.post(processorURL, { frame: data.frame });
       const { command, frame: processedFrame } = response.data;
 

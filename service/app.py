@@ -3,9 +3,15 @@ import cv2
 import numpy as np
 import mediapipe as mp
 from flask import Flask, request, jsonify
+from flask_cors import CORS
+import eventlet
+eventlet.monkey_patch()
 
 app = Flask(__name__)
-
+CORS(app, origins=[
+    "http://localhost:5000",
+    "https://wavedrive-backend.onrender.com"
+])
 # Setup MediaPipe
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(
@@ -86,4 +92,10 @@ def process_frame():
 def index():
     return "Gesture Processor Microservice Running"
 
-
+if __name__ == '__main__':
+    from flask_socketio import SocketIO
+    socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins=[
+        "http://localhost:5000",
+        "https://wavedrive-backend.onrender.com"
+    ])
+    socketio.run(app, host='0.0.0.0', port=5000)
