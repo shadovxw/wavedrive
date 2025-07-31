@@ -4,3 +4,4 @@ eventlet
 numpy
 opencv-python-headless
 mediapipe
+flask_cors
