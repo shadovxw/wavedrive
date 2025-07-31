@@ -11,8 +11,9 @@ const io = new Server(server, { cors: { origin: '*' } });
 
 let registeredIP = null;
 let transmissionActive = false;
+let rpiSocket = null;
 
-const processorURL = 'https://wavedrive-service.onrender.com/process'; // Flask microservice
+const processorURL = 'http://localhost:6000/process'; // Flask microservice
 
 io.on('connection', (socket) => {
   console.log('[CONNECTED] Client');
@@ -20,9 +21,11 @@ io.on('connection', (socket) => {
   // Register the Raspberry Pi IP
   socket.on('register_ip', (data) => {
     registeredIP = data.ip || '192.168.1.31';
+    rpiSocket = socket;  // Save this socket
     console.log(`[REGISTERED IP] ${registeredIP}`);
     socket.emit('ip_registered', { message: `IP ${registeredIP} registered.` });
   });
+
 
   // Start webcam transmission
   socket.on('start_transmission', () => {
@@ -59,7 +62,7 @@ io.on('connection', (socket) => {
       io.emit('webcam_result', { command, frame: processedFrame });
 
       // Optional: send command to Raspberry Pi
-      // await axios.post(`http://${registeredIP}:5000/command`, { command });
+      // await axios.post(`http://${registeredIP}:5001/command`, { command });
 
     } catch (error) {
       console.error('[FRAME PROCESS ERROR]', error?.message || error);
@@ -68,16 +71,15 @@ io.on('connection', (socket) => {
 
   // RPi sends live feed to dashboard
   socket.on('rpi_feed', (data) => {
-    if (
-      transmissionActive &&
-      socket.handshake.address === registeredIP
-    ) {
+    if (true) {
+      console.log("boo")
       io.emit('rpi_result', {
-        rpi_frame: data.frame,
+        rpi_frame: data.frame, // This is already compressed base64
         source_ip: registeredIP
       });
     }
   });
+
 
   // Optional: clean up on disconnect
   socket.on('disconnect', () => {

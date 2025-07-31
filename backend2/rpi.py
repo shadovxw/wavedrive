@@ -11,6 +11,11 @@ sio = socketio.Client()
 # Flask app to simulate RPi receiving commands
 app = Flask(__name__)
 
+@app.route('/', methods=['GET'])
+def home():
+    return "HELLO"
+
+
 @app.route('/command', methods=['POST'])
 def handle_command():
     data = request.get_json()
@@ -35,27 +40,33 @@ def handle_command():
 
 # Function to simulate sending camera frames
 def send_frame():
-    cap = cv2.VideoCapture(1)  # Default webcam for local testing
+    cap = cv2.VideoCapture(1)  # Change to 0 if needed
     while True:
         ret, frame = cap.read()
         if not ret:
             continue
 
-        # Show the frame locally (this creates a popup window)
-        cv2.imshow("RPi Dummy Webcam", frame)
+        # Optional: Resize for better performance (same as Flask if needed)
+        frame = cv2.resize(frame, (640, 480))
 
-        # Required to update the window and check for key events
+        # Encode the frame as JPEG (same as Flask)
+        _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 50])  # 50 = compressed
+        encoded_frame = base64.b64encode(buffer).decode('utf-8')
+
+        # Send to backend via Socket.IO
+        print("sending frame")
+        sio.emit('rpi_feed', {'frame': f'data:image/jpeg;base64,{encoded_frame}'})
+        print("sending frame wgbeqthqteh")
+        # Show frame locally (for debug)
+        cv2.imshow("RPi Dummy Webcam", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-        _, buffer = cv2.imencode('.jpg', frame)
-        encoded_frame = base64.b64encode(buffer).decode('utf-8')
-        
-        sio.emit('rpi_feed', {'frame': f'data:image/jpeg;base64,{encoded_frame}'})
-        time.sleep(0.2)  # Send at 5 FPS
+        time.sleep(0.2)  # ~5 FPS
 
     cap.release()
     cv2.destroyAllWindows()
+
 
 
 @sio.event

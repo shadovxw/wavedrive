@@ -90,3 +90,6 @@ def process_frame():
 @app.route('/')
 def index():
     return "Gesture Processor Microservice Running"
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=6000, debug=True)
