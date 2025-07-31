@@ -12,22 +12,20 @@ function ConsoleComponent() {
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
   const socketRef = useRef(null);
+  const currentCommandRef = useRef('');
 
   useEffect(() => {
-    console.log('[Init] Connecting to socket server...');
-    socketRef.current = io('https://wavedrive-backend.onrender.com');
+    socketRef.current = io('http://localhost:5000');
 
     socketRef.current.on('connect', () => {
       console.log('[Socket] Connected:', socketRef.current.id);
     });
 
     socketRef.current.on('ip_registered', (data) => {
-      console.log('[Server] IP Registered:', data.message);
       setRegistered(true);
     });
 
     socketRef.current.on('webcam_result', (data) => {
-      console.log('[Socket] Received webcam_result');
       const img = new Image();
       img.src = data.frame;
       img.onload = () => {
@@ -35,68 +33,92 @@ function ConsoleComponent() {
         canvasRef.current.width = img.width;
         canvasRef.current.height = img.height;
         ctx.drawImage(img, 0, 0);
-        console.log('[Canvas] Webcam frame rendered');
       };
-      setCommand(data.command);
+
+      if (data.command !== currentCommandRef.current) {
+        setCommand(data.command);
+        currentCommandRef.current = data.command;
+      }
     });
 
     socketRef.current.on('rpi_result', (data) => {
-      console.log('[Socket] Received rpi_result');
       setRpiFrame(data.rpi_frame);
     });
 
     return () => {
-      console.log('[Cleanup] Disconnecting socket...');
       socketRef.current.disconnect();
     };
   }, []);
 
   const registerIP = () => {
-    if (ip.trim() !== '') {
-      console.log('[Action] Registering IP:', ip);
+    if (ip.trim()) {
       socketRef.current.emit('register_ip', { ip: ip.trim() });
     }
   };
 
-  const startWebcam = async () => {
-    console.log('[Action] Starting webcam...');
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoRef.current.srcObject = stream;
-    console.log('[Webcam] Stream started:', stream);
-    setStreaming(true);
+const startWebcam = async () => {
+  try {
+    console.log("something4");
 
+    // Lower resolution and frame rate for better performance
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+        frameRate: { ideal: 10 } // lower frame rate for smoother backend decoding
+      }
+    });
+
+    videoRef.current.srcObject = stream;
+    setStreaming(true);
     socketRef.current.emit('start_transmission');
-    console.log('[Socket] Sent start_transmission');
+    console.log("something3");
 
     const sendFrame = () => {
+      if (!videoRef.current || videoRef.current.readyState !== 4) return;
+      console.log("something2");
+
+      // Create canvas at video resolution
       const tempCanvas = document.createElement('canvas');
       tempCanvas.width = videoRef.current.videoWidth;
       tempCanvas.height = videoRef.current.videoHeight;
-      const ctx = tempCanvas.getContext('2d');
-      ctx.drawImage(videoRef.current, 0, 0);
+      console.log("something1");
 
-      tempCanvas.toBlob(blob => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          socketRef.current.emit('frame', { frame: reader.result });
-          console.log('[Socket] Sent frame');
-        };
-        reader.readAsDataURL(blob);
-      }, 'image/jpeg');
+      const ctx = tempCanvas.getContext('2d');
+      ctx.drawImage(videoRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
+
+      // Encode as compressed JPEG with 0.7 quality
+      tempCanvas.toBlob(
+        (blob) => {
+          if (!blob) return;
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            // Send base64 JPEG frame to backend
+            socketRef.current.emit('frame', { frame: reader.result });
+          };
+          reader.readAsDataURL(blob);
+        },
+        'image/jpeg',
+        0.7 // compression quality (0 = worst, 1 = best)
+      );
     };
 
+    // Send frame every 200ms (5 FPS) — tweak as needed
     videoRef.current.intervalId = setInterval(sendFrame, 200);
-  };
+  } catch (err) {
+    console.log('[Webcam Error]', err);
+    alert('Webcam access denied or device busy: ' + err.message);
+  }
+};
+
 
   const stopWebcam = () => {
-    console.log('[Action] Stopping webcam...');
     if (videoRef.current.srcObject) {
       videoRef.current.srcObject.getTracks().forEach(track => track.stop());
       clearInterval(videoRef.current.intervalId);
     }
     socketRef.current.emit('stop_transmission');
     setStreaming(false);
-    console.log('[Socket] Sent stop_transmission');
   };
 
   return (
@@ -122,12 +144,13 @@ function ConsoleComponent() {
               <div className="feed">
                 <h4>Webcam Feed</h4>
                 <video
-  ref={videoRef}
-  autoPlay
-  playsInline
-  style={{ visibility: 'hidden', position: 'absolute', width: 0, height: 0 }}
-/>
-
+                  ref={videoRef}
+                  width="0"
+                  height="0"
+                  autoPlay
+                  playsInline
+                  muted
+                />
                 <canvas
                   ref={canvasRef}
                   width="700"
