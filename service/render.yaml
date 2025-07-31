@@ -3,7 +3,7 @@ services:
     name: wavedrive-service
     runtime: python
     buildCommand: ""
-    startCommand: gunicorn app:app --workers=1 --bind 0.0.0.0:$PORT
+    startCommand: gunicorn app:app --workers 2 --threads 4 --bind 0.0.0.0:6000
     envVars:
       - key: FLASK_ENV
         value: production

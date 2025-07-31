@@ -39,15 +39,11 @@ io.on('connection', (socket) => {
   });
 
   socket.on('frame', async (data) => {
-    // if (!transmissionActive || socket.handshake.address !== registeredIP) {
-    //   console.log('[BLOCKED FRAME] Unauthorized or inactive');
-    //   return;
-    // }
-
     try {
+      console.log("sending")
       const response = await axios.post(processorURL, { frame: data.frame });
       const { command, frame: processedFrame } = response.data;
-
+      console.log("reci")
       io.emit('webcam_result', { command, frame: processedFrame });
 
       // Send command to RPi

@@ -12,16 +12,11 @@ CORS(app, origins=[
     "https://wavedrive-backend.onrender.com"
 ])
 
-# MediaPipe Setup
+# MediaPipe setup (modules only, instance created per request)
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(
-    static_image_mode=True,
-    max_num_hands=1,
-    min_detection_confidence=0.5
-)
 mp_drawing = mp.solutions.drawing_utils
 
-# Gesture Logic
+# Gesture Recognition Logic
 def gesture_controls(landmarks):
     try:
         if (landmarks[2][1] > landmarks[4][1] and
@@ -63,13 +58,20 @@ def process_frame():
             raise ValueError("Frame decode returned None")
 
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = hands.process(rgb)
 
-        command = 'stop'
-        if results.multi_hand_landmarks:
-            landmarks = [(lm.x, lm.y, lm.z) for lm in results.multi_hand_landmarks[0].landmark]
-            mp_drawing.draw_landmarks(frame, results.multi_hand_landmarks[0], mp_hands.HAND_CONNECTIONS)
-            command = gesture_controls(landmarks)
+        # Lazy-load MediaPipe for better memory usage
+        with mp_hands.Hands(
+            static_image_mode=True,
+            max_num_hands=1,
+            min_detection_confidence=0.5
+        ) as hands:
+            results = hands.process(rgb)
+
+            command = 'stop'
+            if results.multi_hand_landmarks:
+                landmarks = [(lm.x, lm.y, lm.z) for lm in results.multi_hand_landmarks[0].landmark]
+                mp_drawing.draw_landmarks(frame, results.multi_hand_landmarks[0], mp_hands.HAND_CONNECTIONS)
+                command = gesture_controls(landmarks)
 
         _, buffer = cv2.imencode('.jpg', frame)
         encoded_frame = base64.b64encode(buffer).decode('utf-8')
@@ -87,5 +89,4 @@ def process_frame():
 def index():
     return "Gesture Processor Microservice Running"
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=6000)
+
