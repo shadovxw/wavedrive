@@ -55,61 +55,58 @@ function ConsoleComponent() {
       socketRef.current.emit('register_ip', { ip: ip.trim() });
     }
   };
-
 const startWebcam = async () => {
   try {
-    console.log("something4");
+    console.log("[Webcam] Starting webcam...");
 
-    // Lower resolution and frame rate for better performance
     const stream = await navigator.mediaDevices.getUserMedia({
       video: {
-        width: { ideal: 640 },
-        height: { ideal: 480 },
-        frameRate: { ideal: 10 } // lower frame rate for smoother backend decoding
+        width: { ideal: 480 },     // Optimized resolution
+        height: { ideal: 360 },
+        frameRate: { ideal: 10 }   // Lower FPS = smoother backend
       }
     });
 
     videoRef.current.srcObject = stream;
     setStreaming(true);
     socketRef.current.emit('start_transmission');
-    console.log("something3");
+
+    // ✅ Reuse canvas instead of creating it repeatedly
+    const tempCanvas = document.createElement('canvas');
+    const ctx = tempCanvas.getContext('2d');
+    tempCanvas.width = 320;
+    tempCanvas.height = 240;
 
     const sendFrame = () => {
       if (!videoRef.current || videoRef.current.readyState !== 4) return;
-      console.log("something2");
 
-      // Create canvas at video resolution
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = videoRef.current.videoWidth;
-      tempCanvas.height = videoRef.current.videoHeight;
-      console.log("something1");
-
-      const ctx = tempCanvas.getContext('2d');
       ctx.drawImage(videoRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
 
-      // Encode as compressed JPEG with 0.7 quality
       tempCanvas.toBlob(
         (blob) => {
           if (!blob) return;
           const reader = new FileReader();
           reader.onloadend = () => {
-            // Send base64 JPEG frame to backend
-            socketRef.current.emit('frame', { frame: reader.result });
+            socketRef.current.emit('frame', { frame: reader.result }); // base64 JPEG
           };
           reader.readAsDataURL(blob);
         },
         'image/jpeg',
-        0.7 // compression quality (0 = worst, 1 = best)
+        0.65 // good balance between quality and size
       );
     };
 
-    // Send frame every 200ms (5 FPS) — tweak as needed
-    videoRef.current.intervalId = setInterval(sendFrame, 200);
+    // ✅ Store interval ID to clear later
+    const intervalId = setInterval(sendFrame, 200); // 5 FPS
+    videoRef.current.intervalId = intervalId;
+
+    console.log("[Webcam] Streaming started");
   } catch (err) {
-    console.log('[Webcam Error]', err);
-    alert('Webcam access denied or device busy: ' + err.message);
+    console.error('[Webcam Error]', err);
+    alert('Webcam access denied or busy: ' + err.message);
   }
 };
+
 
 
   const stopWebcam = () => {

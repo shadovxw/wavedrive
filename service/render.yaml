@@ -1,9 +1,11 @@
 services:
   - type: web
-    name: wavedrive-service
-    runtime: python
-    buildCommand: ""
-    startCommand: gunicorn app:app --workers 2 --threads 4 --bind 0.0.0.0:6000
+    name: wavedrive-gesture-processor
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 2 --bind 0.0.0.0:10000
     envVars:
       - key: FLASK_ENV
         value: production
+    autoDeploy: true

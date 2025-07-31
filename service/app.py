@@ -4,17 +4,25 @@ import numpy as np
 import mediapipe as mp
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_compress import Compress
 
 # Flask Setup
 app = Flask(__name__)
+Compress(app)  # ✅ Enable gzip compression
 CORS(app, origins=[
     "http://localhost:5000",
     "https://wavedrive-backend.onrender.com"
 ])
 
-# MediaPipe setup (modules only, instance created per request)
+# MediaPipe Setup (global instance for efficiency)
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
+
+hands = mp_hands.Hands(
+    static_image_mode=False,  # ✅ optimized for video stream
+    max_num_hands=1,
+    min_detection_confidence=0.5
+)
 
 # Gesture Recognition Logic
 def gesture_controls(landmarks):
@@ -47,33 +55,27 @@ def process_frame():
         if not data or 'frame' not in data:
             return jsonify({'error': 'No frame provided'}), 400
 
-        frame_data = data['frame']
-        if ',' in frame_data:
-            frame_data = frame_data.split(',')[1]
-
+        frame_data = data['frame'].split(',')[1] if ',' in data['frame'] else data['frame']
         img_bytes = base64.b64decode(frame_data)
         np_arr = np.frombuffer(img_bytes, np.uint8)
         frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
         if frame is None:
             raise ValueError("Frame decode returned None")
 
+        # ✅ Resize for faster processing
+        frame = cv2.resize(frame, (320, 240))
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = hands.process(rgb)
 
-        # Lazy-load MediaPipe for better memory usage
-        with mp_hands.Hands(
-            static_image_mode=True,
-            max_num_hands=1,
-            min_detection_confidence=0.5
-        ) as hands:
-            results = hands.process(rgb)
+        command = 'stop'
+        if results.multi_hand_landmarks:
+            landmarks = [(lm.x, lm.y, lm.z) for lm in results.multi_hand_landmarks[0].landmark]
+            mp_drawing.draw_landmarks(frame, results.multi_hand_landmarks[0], mp_hands.HAND_CONNECTIONS)
+            command = gesture_controls(landmarks)
 
-            command = 'stop'
-            if results.multi_hand_landmarks:
-                landmarks = [(lm.x, lm.y, lm.z) for lm in results.multi_hand_landmarks[0].landmark]
-                mp_drawing.draw_landmarks(frame, results.multi_hand_landmarks[0], mp_hands.HAND_CONNECTIONS)
-                command = gesture_controls(landmarks)
-
-        _, buffer = cv2.imencode('.jpg', frame)
+        # ✅ Encode JPEG with compression
+        _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
         encoded_frame = base64.b64encode(buffer).decode('utf-8')
 
         return jsonify({
@@ -88,5 +90,3 @@ def process_frame():
 @app.route('/')
 def index():
     return "Gesture Processor Microservice Running"
-
-

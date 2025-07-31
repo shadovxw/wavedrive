@@ -1,6 +1,7 @@
 flask
 flask-cors
-gunicorn
-numpy
-opencv-python-headless
+flask-compress
 mediapipe
+opencv-python
+numpy
+gunicorn
