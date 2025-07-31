@@ -1,0 +1,6 @@
+Flask
+gunicorn
+eventlet
+numpy
+opencv-python-headless
+mediapipe
