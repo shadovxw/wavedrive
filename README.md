@@ -68,6 +68,9 @@ Now:
 
 ---
 
+## Prototype
+<img width="1008" height="553" alt="image" src="https://github.com/user-attachments/assets/483fccc4-bb88-4b59-a03b-50a83af58aec" />
+---
 ## 📜 License
 
 MIT License © 2025 Vrishank Warrier
