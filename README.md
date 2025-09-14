@@ -17,7 +17,6 @@ It integrates computer vision, real-time communication, and microservices archit
   - Frame downscaling + JPEG compression.  
   - Gzip-enabled API responses.  
 - 🔐 **Secure Communication** with CORS, JWT, and HttpOnly cookies (extendable).  
-- 🖥 **Cross-Platform Deployment** on cloud VMs (Render, Oracle, or self-hosted).  
 
 ---
 
